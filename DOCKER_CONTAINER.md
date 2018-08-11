@@ -506,3 +506,8 @@ docker run username/repository:tag                   # Run image from a registry
 > docker run -p 8888:8888 jupyter-container
 ```
 
+## View Notebook
+
+Use this in your browser to open jupyter notebook:
+
+`http://127.0.0.1:8888/?token=e6238de09072cc71a3ceb206e1903e758d99a89e7679fa7f`
