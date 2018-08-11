@@ -51,8 +51,8 @@ RUN groupadd wheel -g 11 && \
 
 USER $NB_UID
 
-# Setup work directory for backward-compatibility
-RUN mkdir /home/$NB_USER/work && \
+# Setup jupyter_notebooks directory for backward-compatibility
+RUN mkdir /home/$NB_USER/jupyter_notebooks && \
     fix-permissions /home/$NB_USER
 
 # Install conda as codeninja and check the md5 sum provided on the download site

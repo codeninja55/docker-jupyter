@@ -11,8 +11,8 @@ REF: https://github.com/jupyter/docker-stacks/blob/master/base-notebook/Dockerfi
 Create an empty directory. Change directories (`cd`) into the new directory, create a file called `Dockerfile`, copy-and-paste the following content into that file, and save it. Take note of the comments that explain each statement in your new `Dockerfile`. 
 
 ```shell
-> mkdir jupyter-container
-> cd jupyter-container
+> mkdir jupyter-image
+> cd jupyter-image
 ```
 
 We are going to be using a pre-made barebones Dockerfile from the Jupyter Development Team. 
@@ -39,7 +39,7 @@ jupyter-docker/
 |----- start.sh
 ```
 
-#### jupyter-container\Dockerfile
+#### jupyter-image\Dockerfile
 
 ```dockerfile
 # Copyright (c) Jupyter Development Team.
@@ -95,11 +95,11 @@ RUN groupadd wheel -g 11 && \
 
 USER $NB_UID
 
-# Setup work directory for backward-compatibility
-RUN mkdir /home/$NB_USER/work && \
+# Setup jupyter_notebooks directory for backward-compatibility
+RUN mkdir /home/$NB_USER/jupyter_notebooks && \
     fix-permissions /home/$NB_USER
 
-# Install conda as jovyan and check the md5 sum provided on the download site
+# Install conda as codeninja and check the md5 sum provided on the download site
 ENV MINICONDA_VERSION 4.5.4
 RUN cd /tmp && \
     wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
@@ -162,7 +162,7 @@ RUN fix-permissions /etc/jupyter/
 USER $NB_UID
 ```
 
-#### jupyter-container/fix-permissions
+#### jupyter-image/fix-permissions
 
 ```shell
 #!/bin/bash
@@ -202,7 +202,7 @@ for d in $@; do
 done
 ```
 
-#### jupyter-container/jupyter_notebook_config.py
+#### jupyter-image/jupyter_notebook_config.py
 
 ```shell
 # Copyright (c) Jupyter Development Team.
@@ -246,7 +246,7 @@ if 'GEN_CERT' in os.environ:
     c.NotebookApp.certfile = pem_file
 ```
 
-#### jupyter-container/start-notebook.sh
+#### jupyter-image/start-notebook.sh
 
 ```shell
 #!/bin/bash
@@ -267,7 +267,7 @@ else
 fi
 ```
 
-#### jupyter-container/start-singleuser.sh
+#### jupyter-image/start-singleuser.sh
 
 ```shell
 #!/bin/bash
@@ -315,7 +315,7 @@ fi
 . /usr/local/bin/start.sh $NOTEBOOK_BIN $NOTEBOOK_ARGS $@
 ```
 
-#### jupyter-container/start.sh
+#### jupyter-image/start.sh
 
 ```shell
 #!/bin/bash
@@ -475,7 +475,7 @@ Where is your built image? It’s in your machine’s local Docker image registr
 ```shell
 > docker image ls
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-jupyter-container   latest              8c9e80eea321        5 seconds ago       841MB
+jupyter-image       latest              8c9e80eea321        5 seconds ago       841MB
 ubuntu              <none>              452a96d81c30        3 months ago        79.6MB
 ```
 

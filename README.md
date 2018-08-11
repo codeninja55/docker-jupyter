@@ -110,7 +110,7 @@ docker container ls -aq
 
 ```bash
 $ git clone https://github.com/codeninja55/docker-jupyter.git
-$ cd jupyter-container
+$ cd jupyter-image
 $ docker build -t jupyter-container .
 $ docker run -p 8888:8888 jupyter-container
 ```
