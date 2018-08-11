@@ -474,7 +474,9 @@ Where is your built image? It’s in your machine’s local Docker image registr
 
 ```shell
 > docker image ls
-
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+jupyter-container   latest              8c9e80eea321        5 seconds ago       841MB
+ubuntu              <none>              452a96d81c30        3 months ago        79.6MB
 ```
 
 ### More Cheat Sheet
@@ -496,5 +498,11 @@ docker login             # Log in this CLI session using your Docker credentials
 docker tag <image> username/repository:tag  # Tag <image> for upload to registry
 docker push username/repository:tag            # Upload tagged image to registry
 docker run username/repository:tag                   # Run image from a registry
+```
+
+## Run the container
+
+```shell
+> docker run -p 8888:8888 jupyter-container
 ```
 
