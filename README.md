@@ -1,9 +1,12 @@
 # Docker Jupyter
-A Docker container for Jupyter notebook with multiple language kernels (Python3, C, C++, Javascript, and TypeScript).
+A Docker container for Jupyter notebook with multiple language kernels (Python3, C, C++, R, Keras and TensorFlow).
 
 ## Why?
 
-
+* Containerised Jupyter Notebook environment allows portability of packages across operating systems.
+* Simple installation via pre-built library images and `Dockerfile` directives.
+* Fast installation of multiple kernels and packages at once to make the most of Jupyter Notebook's versatility.
+* Separation of environment variables dedicated to Jupyter versus changing those of the OS. 
 
 ## Dependencies
 
@@ -150,7 +153,9 @@ $ sudo groupadd docker
 $ sudo usermod -aG docker $USER
 ```
 
+## The Jupyter Stacks Docker Image
 
+![Jupyter Stacks](./jupyter-stacks.svg)
 
 ## Simple Installation from Git
 

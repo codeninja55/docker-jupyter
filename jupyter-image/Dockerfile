@@ -90,6 +90,9 @@ USER $NB_UID
 RUN mkdir /home/$NB_USER/jupyter_notebooks && \
     fix-permissions /home/$NB_USER
 
+COPY jupyter-notebook.key /home/$NB_USER/jupyter-notebook.key
+COPY jupyter-notebook.crt /home/$NB_USER/jupyter-notebook.crt
+
 # Install conda as codeninja and check the md5 sum provided on the download site
 ENV MINICONDA_VERSION 4.5.4
 RUN cd /tmp && \
@@ -327,7 +330,7 @@ RUN echo # ==============================| JUPYTER-C-KERNEL - END |=============
 RUN echo # ==============================| JUPYTER THEMES - START |============================== #
 
 # Install jupyterthemes
-RUN pip install jupyterthemes 
+RUN pip install jupyterthemes
 RUN conda install --quiet --yes \
     'jupyterthemes' && \
     conda clean -tipsy && \
