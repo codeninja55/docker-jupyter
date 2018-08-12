@@ -34,6 +34,7 @@ We are going to be using a pre-made barebones Dockerfile from the Jupyter Develo
 jupyter-docker/
 |----- Dockerfile
 |----- fix-permissions
+|----- jupyter_notebook_config.py
 |----- start-notebook.sh
 |----- start-singleuser.sh
 |----- start.sh
@@ -463,7 +464,7 @@ fi
 ## Build the Container
 
 ```shell
-> docker build -t jupyter-container .
+> docker build -t jupyter-image .
 
 Step 1/26 : FROM ubuntu:bionic-20180526@sha256:c8c275751219dadad8fa56b3ac41ca6cb22219ff117ca98fe82b42f24e1ba64e
 sha256:c8c275751219dadad8fa56b3ac41ca6cb22219ff117ca98fe82b42f24e1ba64e: Pulling from library/ubuntu
@@ -471,6 +472,16 @@ sha256:c8c275751219dadad8fa56b3ac41ca6cb22219ff117ca98fe82b42f24e1ba64e: Pulling
  ...
  
 ```
+
+### Note: Build on Linux systems
+
+```bash
+$ sudo chmod u+x fix-permissions
+$ sudo chmod u+x start*
+$ sudo docker build -t jupyter-image .
+```
+
+
 
 Where is your built image? It’s in your machine’s local Docker image registry: 
 
