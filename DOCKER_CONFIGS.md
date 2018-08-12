@@ -10,3 +10,9 @@ REF: https://docs.docker.com/storage/volumes/
 > docker run -p 8888:8888 -v C:/Users/codeninja/Dropbox:/home/codeninja jupyter-image
 ```
 
+## Accessing a Shell in Running Container
+
+```shell
+> docker exec -it <container_name_or_id> bash
+```
+
