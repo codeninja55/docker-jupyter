@@ -234,13 +234,15 @@ ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
 RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions /home/$NB_USER
 
+# Download jupyter-c-kernel
+# https://github.com/brendan-rius/jupyter-c-kernel
+RUN pip install jupyter-c-kernel
+
 
 USER root
 
 # Install jupyter-c-kernel
-# https://github.com/brendan-rius/jupyter-c-kernel
-RUN pip install jupyter-c-kernel && \
-    install_c_kernel
+RUN install_c_kernel
 
 # Install xeus-cling C++ kernel
 # https://github.com/QuantStack/xeus-cling
