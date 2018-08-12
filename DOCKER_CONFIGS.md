@@ -7,7 +7,7 @@ REF: https://www.dataquest.io/blog/docker-data-science/
 REF: https://docs.docker.com/storage/volumes/
 
 ```shell
-> docker run -p 8888:8888 -v C:/Users/codeninja/Dropbox:/home/codeninja -e GEN_CERT=yes  --name=jupyter jupyter-image
+> docker run -p 8888:8888 -v C:/Users/codeninja/Dropbox:/home/codeninja -e GEN_CERT=yes -e GRANT_SUDO=yes --name=jupyter jupyter-image start-notebook.sh --NotebookApp.base_url=/home/codeninja/Dropbox
 ```
 
 ## Start a Docker container
@@ -39,6 +39,6 @@ $ docker exec -it --user root jupyter passwd codeninja
 ## Adding $USER to sudoers
 
 ```bash
-docker exec -it --user root jupyter usermod -aG sudo codeninja
+$ docker exec -it --user root jupyter usermod -aG sudo codeninja
 ```
 
