@@ -8,7 +8,14 @@ A Docker container for Jupyter notebook with multiple language kernels (Python3,
 ## Dependencies
 
 * Docker >= 18.06.0-ce-win72 ||
-* Jupyter >= 
+* Conda >= 4.5.9
+* tini >= 0.18.0
+* Jupyter
+  * notebook >= 5.6.*
+  * jupyterhub >= 0.9.*
+  * jupyterlab >= 0.33.*
+* tensorflow => 1.5
+* keras >= 2.1
 
 ## What is Docker?
 
@@ -111,7 +118,7 @@ docker container ls -aq
 ```bash
 $ git clone https://github.com/codeninja55/docker-jupyter.git
 $ cd jupyter-image
-$ docker build -t jupyter-container .
-$ docker run -p 8888:8888 jupyter-container
+$ docker build -t jupyter-image .
+$ docker run -p 8888:8888 jupyter-image
 ```
 
