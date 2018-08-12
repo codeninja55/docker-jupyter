@@ -141,6 +141,15 @@ $ docker --version
 Docker version 17.12.0-ce, build c97c6d6
 ```
 
+### Manage Docker as a non-root user
+
+### Create the `docker` group and add your user.
+
+```bash
+$ sudo groupadd docker
+$ sudo usermod -aG docker $USER
+```
+
 
 
 ## Simple Installation from Git
