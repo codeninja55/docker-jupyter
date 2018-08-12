@@ -12,8 +12,10 @@ REF: https://docs.docker.com/storage/volumes/
 
 ## Start a Docker container
 
+Start the container with STDOUT/STDERR and forward signals attached to current console.
+
 ```powershell
-> docker start jupyter
+> docker -ai start jupyter
 ```
 
 
