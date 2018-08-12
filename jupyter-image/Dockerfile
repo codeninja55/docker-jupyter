@@ -239,6 +239,12 @@ RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
 RUN pip install jupyter-c-kernel && \
     install_c_kernel
 
+# Install xeus-cling C++ kernel
+# https://github.com/QuantStack/xeus-cling
+RUN conda install --quiet --yes \
+    xeus-cling notebook \
+    -c QuantStack \
+    -c conda-forge
 
 USER root
 
