@@ -7,7 +7,7 @@ A Docker container for Jupyter notebook with multiple language kernels (Python3,
 
 ## Dependencies
 
-* Docker >= 18.06.0-ce-win72 ||
+* Docker >= 18.06.0-ce-win72 || 17.12.0-ce (Parrot OS Debian Stretch)
 * Conda >= 4.5.9
 * tini >= 0.18.0
 * Jupyter
@@ -58,7 +58,7 @@ REF: https://jupyter.org/index.html
 > * Interactive output: Your code can produce rich, interactive output: HTML, images, videos, LaTeX, and custom MIME types. 
 > * Big data integration: Leverage big data tools, such as Apache Spark, from Python, R and Scala. Explore that same data with pandas, scikit-learn, ggplot2, TensorFlow. 
 
-## Installation for Docker:
+## (Windows) Installation for Docker:
 
 [Docker Install](https://docs.docker.com/docker-for-windows/install/)
 
@@ -113,7 +113,37 @@ docker container ls --all
 docker container ls -aq
 ```
 
-## Simple Installation
+## (Parrot OS) Installation for Docker:
+
+### Uninstall any old versions
+
+```bash
+$ sudo apt-get remove docker docker-engine docker.io
+```
+
+ ### Install Docker CE
+
+```bash
+$ sudo apt update
+$ sudo apt install apt-transport-https ca-certificates curl \ 
+	gnupg2 software-properties-common
+$ curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+$ sudo apt-key fingerprint 0EBFCD88
+pub   rsa4096 2017-02-22 [SCEA]
+      9DC8 5822 9FC7 DD38 854A  E2D8 8D81 803C 0EBF CD88
+uid           [ unknown] Docker Release (CE deb) <docker@docker.com>
+sub   rsa4096 2017-02-22 [S]
+
+$ sudo echo 'deb [arch=amd64] https://download.docker.com/linux/debian stretch stable' > /etc/apt/sources.list.d/docker.list
+$ sudo apt update
+$ sudo apt install docker-ce
+$ docker --version
+Docker version 17.12.0-ce, build c97c6d6
+```
+
+
+
+## Simple Installation from Git
 
 ```bash
 $ git clone https://github.com/codeninja55/docker-jupyter.git
