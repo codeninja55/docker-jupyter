@@ -2,11 +2,25 @@
 # Distributed under the terms of the Modified BSD License.
 # Modified by Andrew Che (andrew@codeninja55.me)
 
+# Installation Flow
+# base-notebook: https://github.com/jupyter/docker-stacks/tree/master/base-notebook
+# minimal-notebook: https://github.com/jupyter/docker-stacks/blob/master/minimal-notebook/Dockerfile
+# scipy-notebook: https://github.com/jupyter/docker-stacks/blob/master/scipy-notebook/Dockerfile
+# tensorflow-notebook: https://github.com/jupyter/docker-stacks/tree/master/tensorflow-notebook
+# datascience-notebook: https://github.com/jupyter/docker-stacks/tree/master/datascience-notebook
+# Install xeus-cling: https://github.com/QuantStack/xeus-cling
+# Install jupyter_c_kernel: https://github.com/brendan-rius/jupyter-c-kernel/blob/master/Dockerfile
+# Additional configurations: https://jupyter-docker-stacks.readthedocs.io/en/latest/using/common.html
+
 # Ubuntu 18.04 (bionic) from 2018-05-26
 # https://github.com/docker-library/official-images/commit/aac6a45b9eb2bffb8102353c350d341a410fb169
-FROM ubuntu:latest@sha256:c8c275751219dadad8fa56b3ac41ca6cb22219ff117ca98fe82b42f24e1ba64e
+FROM ubuntu:bionic-20180526@sha256:c8c275751219dadad8fa56b3ac41ca6cb22219ff117ca98fe82b42f24e1ba64e
 
-LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
+RUN echo # ------------------------------| DOCKER BUILD - START |------------------------------ #
+
+LABEL maintainer="Andrew Che <andrew@codeninja55.me>"
+
+RUN echo # ==============================| BASE NOTEBOOK - START |============================== #
 
 USER root
 
@@ -21,41 +35,25 @@ RUN apt-get update && apt-get -yq dist-upgrade \
     sudo \
     locales \
     fonts-liberation \
-    emacs \
-    git \
-    jed \
-    libsm6 \
-    libxext-dev \
-    libxrender1 \
-    lmodern \
-    netcat \
-    pandoc \
-    python-dev \
-    texlive-fonts-extra \
-    texlive-fonts-recommended \
-    texlive-generic-recommended \
-    texlive-latex-base \
-    texlive-latex-extra \
-    texlive-xetex \
-    unzip \
-    nano \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
- # R pre-requisites
- RUN apt-get update && \
-     apt-get install -y --no-install-recommends \
-     fonts-dejavu \
-     tzdata \
-     gfortran \
-     gcc && apt-get clean && \
-     rm -rf /var/lib/apt/lists/*
+RUN echo # SCIPY NOTEBOOK DEPENDENCIES
+# ffmpeg for matplotlib anim
+RUN apt-get update && \
+   apt-get install -y --no-install-recommends ffmpeg && \
+   apt-get clean && \
+   rm -rf /var/lib/apt/lists/*
 
- # ffmpeg for matplotlib anim
- RUN apt-get update && \
-     apt-get install -y --no-install-recommends ffmpeg && \
-     apt-get clean && \
-     rm -rf /var/lib/apt/lists/*
+RUN echo # DATASCIENCE NOTEBOOK DEPENDENCIES
+# R pre-requisites
+RUN apt-get update && \
+   apt-get install -y --no-install-recommends \
+   fonts-dejavu \
+   tzdata \
+   gfortran \
+   gcc && apt-get clean && \
+   rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_AU.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
@@ -72,7 +70,7 @@ ENV CONDA_DIR=/opt/conda \
 ENV PATH=$CONDA_DIR/bin:$PATH \
     HOME=/home/$NB_USER
 
-ADD fix-permissions /usr/local/bin/fix-permissions
+COPY fix-permissions /usr/local/bin/fix-permissions
 
 # Create codeninja user with UID=1000 and in the 'users' group
 # and make sure these dirs are writable by the `users` group.
@@ -135,14 +133,60 @@ RUN conda install --quiet --yes \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
-# Install jupyterthemes
-RUN conda install --quiet --yes \
-    'jupyterthemes' && \
-    conda clean -tipsy && \
-    jt -t onedork -kl -T -N \
-    -lineh 120 -cellw 88% -nf ptsans \
-    -nfs 12 -tf ptserif -fs 11 \
-    -ofs 11 -cursc r
+USER root
+
+EXPOSE 8888
+WORKDIR $HOME
+
+# Configure container startup
+ENTRYPOINT ["tini", "-g", "--"]
+CMD ["start-notebook.sh"]
+
+# Add local files as late as possible to avoid cache busting
+COPY start.sh /usr/local/bin/
+COPY start-notebook.sh /usr/local/bin/
+COPY start-singleuser.sh /usr/local/bin/
+COPY jupyter_notebook_config.py /etc/jupyter/
+RUN fix-permissions /etc/jupyter/
+
+USER $NB_UID
+
+RUN echo # ==============================| BASE NOTEBOOK - END |============================== #
+# ---------------------------------------------------------------------------------------------------
+RUN echo # ==============================| MINIMAL NOTEBOOK - START |============================== #
+
+USER root
+
+# Install all OS dependencies for fully functional notebook server
+RUN apt-get update && apt-get install -yq --no-install-recommends \
+    build-essential \
+    emacs \
+    git \
+    inkscape \
+    jed \
+    libsm6 \
+    libxext-dev \
+    libxrender1 \
+    lmodern \
+    netcat \
+    pandoc \
+    python-dev \
+    texlive-fonts-extra \
+    texlive-fonts-recommended \
+    texlive-generic-recommended \
+    texlive-latex-base \
+    texlive-latex-extra \
+    texlive-xetex \
+    unzip \
+    nano \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+USER $NB_UID
+
+RUN echo # ==============================| MINIMAL NOTEBOOK - END |============================== #
+# -------------------------------------------------------------------------------------------------
+RUN echo # ==============================| SCIPY NOTEBOOK - START |============================== #
 
 # Install Python 3 packages
 # Remove pyqt and qt pulled in for matplotlib since we're only ever going to
@@ -186,6 +230,27 @@ RUN conda install --quiet --yes \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
+# Install facets which does not have a pip or conda package at the moment
+RUN cd /tmp && \
+    git clone https://github.com/PAIR-code/facets.git && \
+    cd facets && \
+    jupyter nbextension install facets-dist/ --sys-prefix && \
+    cd && \
+    rm -rf /tmp/facets && \
+    fix-permissions $CONDA_DIR && \
+    fix-permissions /home/$NB_USER
+
+# Import matplotlib the first time to build the font cache.
+ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
+RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
+    fix-permissions /home/$NB_USER
+
+USER $NB_UID
+
+RUN echo # ==============================| SCIPY NOTEBOOK - END |============================== #
+# ------------------------------------------------------------------------------------------------------
+RUN echo # ==============================| TENSORFLOW NOTEBOOK - START |============================== #
+
 # Install Tensorflow
 RUN conda install --quiet --yes \
     'tensorflow' \
@@ -193,6 +258,12 @@ RUN conda install --quiet --yes \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
+
+RUN echo # ==============================| TENSORFLOW NOTEBOOK - END |============================== #
+# -------------------------------------------------------------------------------------------------------
+RUN echo # ==============================| DATASCIENCE NOTEBOOK - START |============================== #
+
+USER $NB_UID
 
 # R packages including IRKernel which gets installed globally.
 RUN conda install --quiet --yes \
@@ -220,20 +291,9 @@ RUN conda install --quiet --yes \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
-# Install facets which does not have a pip or conda package at the moment
-RUN cd /tmp && \
-    git clone https://github.com/PAIR-code/facets.git && \
-    cd facets && \
-    jupyter nbextension install facets-dist/ --sys-prefix && \
-    cd && \
-    rm -rf /tmp/facets && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
-
-# Import matplotlib the first time to build the font cache.
-ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
-RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
-    fix-permissions /home/$NB_USER
+RUN echo # ==============================| DATASCIENCE NOTEBOOK - END |============================== #
+# ---------------------------------------------------------------------------------------------
+RUN echo # ==============================| XEUS-CLING - START |============================== #
 
 # Install xeus-cling C++ kernel
 # https://github.com/QuantStack/xeus-cling
@@ -241,6 +301,10 @@ RUN conda install --quiet --yes \
     xeus-cling notebook \
     -c QuantStack \
     -c conda-forge
+
+RUN echo # ==============================| XEUS-CLING - END |============================== #
+# ---------------------------------------------------------------------------------------------------
+RUN echo # ==============================| JUPYTER-C-KERNEL - START |============================== #
 
 USER root
 
@@ -254,19 +318,24 @@ COPY ./jupyter_c_kernel/ jupyter_c_kernel/
 RUN pip install --no-cache-dir jupyter_c_kernel/
 RUN cd jupyter_c_kernel && install_c_kernel --user
 
-EXPOSE 8888
-WORKDIR $HOME
+USER $NB_UID
 
-# Configure container startup
-ENTRYPOINT ["tini", "-g", "--"]
-CMD ["start-notebook.sh"]
+RUN echo # ==============================| JUPYTER-C-KERNEL - END |============================== #
+# --------------------------------------------------------------------------------------------------
+RUN echo # ==============================| JUPYTER THEMES - START |============================== #
 
-# Add local files as late as possible to avoid cache busting
-COPY start.sh /usr/local/bin/
-COPY start-notebook.sh /usr/local/bin/
-COPY start-singleuser.sh /usr/local/bin/
-COPY jupyter_notebook_config.py /etc/jupyter/
-RUN fix-permissions /etc/jupyter/
+# Install jupyterthemes
+RUN conda install --quiet --yes \
+    'jupyterthemes' && \
+    conda clean -tipsy && \
+    jt -t onedork -kl -T -N \
+    -lineh 200 -cellw 80% -nf ptsans \
+    -nfs 11 -tf ptserif -fs 11 \
+    -ofs 10 -cursc r
 
 # Switch back to codeninja to avoid accidental container runs as root
 USER $NB_UID
+
+RUN echo # ==============================| JUPYTER THEMES - END |============================== #
+
+RUN echo # ------------------------------| DOCKER BUILD - START |------------------------------ #
