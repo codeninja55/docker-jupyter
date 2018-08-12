@@ -73,6 +73,7 @@ ENV PATH=$CONDA_DIR/bin:$PATH \
     HOME=/home/$NB_USER
 
 ADD fix-permissions /usr/local/bin/fix-permissions
+
 # Create codeninja user with UID=1000 and in the 'users' group
 # and make sure these dirs are writable by the `users` group.
 RUN groupadd wheel -g 11 && \
@@ -234,22 +235,24 @@ ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
 RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions /home/$NB_USER
 
-# Download jupyter-c-kernel
-# https://github.com/brendan-rius/jupyter-c-kernel
-RUN pip install jupyter-c-kernel
-
-
-USER root
-
-# Install jupyter-c-kernel
-RUN install_c_kernel
-
 # Install xeus-cling C++ kernel
 # https://github.com/QuantStack/xeus-cling
 RUN conda install --quiet --yes \
     xeus-cling notebook \
     -c QuantStack \
     -c conda-forge
+
+USER root
+
+# Download jupyter-c-kernel
+# https://github.com/brendan-rius/jupyter-c-kernel
+
+WORKDIR /tmp
+
+COPY ./jupyter_c_kernel/ jupyter_c_kernel/
+
+RUN pip install --no-cache-dir jupyter_c_kernel/
+RUN cd jupyter_c_kernel && install_c_kernel --user
 
 EXPOSE 8888
 WORKDIR $HOME
