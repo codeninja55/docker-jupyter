@@ -155,6 +155,14 @@ $ sudo usermod -aG docker $USER
 
 ## The Jupyter Stacks Docker Image
 
+This Docker image of Jupyter is based on the jupyer-stacks repo by the Docker Development Team. However, instead of installing the default \*-notebooks, a single `Dockerfile` is created in `./jupyter-image/` to install packages for a large environment. These include:
+
+* base-notebook
+* minimal-notebook
+* scipy-notebook
+* tensorflow-notebook
+* datascience-notebook
+
 ![Jupyter Stacks](./jupyter-stacks.svg)
 
 ## Simple Installation from Git
