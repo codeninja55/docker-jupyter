@@ -234,6 +234,9 @@ ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
 RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions /home/$NB_USER
 
+
+USER root
+
 # Install jupyter-c-kernel
 # https://github.com/brendan-rius/jupyter-c-kernel
 RUN pip install jupyter-c-kernel && \
@@ -245,8 +248,6 @@ RUN conda install --quiet --yes \
     xeus-cling notebook \
     -c QuantStack \
     -c conda-forge
-
-USER root
 
 EXPOSE 8888
 WORKDIR $HOME
