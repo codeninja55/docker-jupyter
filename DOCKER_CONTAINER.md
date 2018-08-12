@@ -503,7 +503,7 @@ docker run username/repository:tag                   # Run image from a registry
 ## Run the container
 
 ```shell
-> docker run -p 8888:8888 jupyter-container
+> docker run -p 8888:8888 jupyter-image
 ```
 
 ## View Notebook
