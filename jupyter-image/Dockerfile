@@ -298,7 +298,7 @@ RUN echo # ==============================| XEUS-CLING - START |=================
 # Install xeus-cling C++ kernel
 # https://github.com/QuantStack/xeus-cling
 RUN conda install --quiet --yes \
-    xeus-cling notebook \
+    xeus-cling \
     -c QuantStack \
     -c conda-forge
 
@@ -318,6 +318,8 @@ COPY ./jupyter_c_kernel/ jupyter_c_kernel/
 RUN pip install --no-cache-dir jupyter_c_kernel/
 RUN cd jupyter_c_kernel && install_c_kernel --user
 
+WORKDIR $HOME
+
 USER $NB_UID
 
 RUN echo # ==============================| JUPYTER-C-KERNEL - END |============================== #
@@ -325,13 +327,14 @@ RUN echo # ==============================| JUPYTER-C-KERNEL - END |=============
 RUN echo # ==============================| JUPYTER THEMES - START |============================== #
 
 # Install jupyterthemes
+RUN pip install jupyterthemes 
 RUN conda install --quiet --yes \
     'jupyterthemes' && \
     conda clean -tipsy && \
     jt -t onedork -kl -T -N \
-    -lineh 200 -cellw 80% -nf ptsans \
-    -nfs 11 -tf ptserif -fs 11 \
-    -ofs 10 -cursc r
+    -lineh 200 -cellw 80% \
+    -nfs 11 -fs 11 \
+    -ofs 10 -cursc r -dfonts
 
 # Switch back to codeninja to avoid accidental container runs as root
 USER $NB_UID
