@@ -1,6 +1,7 @@
 #!/bin/bash
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
+# Modified by Andrew Che (andrew@codeninja55.me)
 
 set -e
 
@@ -101,7 +102,7 @@ else
         if [[ "$STATUS" != "0" ]]; then
             if [[ -w /etc/passwd ]]; then
                 echo "Adding passwd file entry for $(id -u)"
-                cat /etc/passwd | sed -e "s/^codeninja:/ninjacode:/" > /tmp/passwd
+                cat /etc/passwd | sed -e "s/^codeninja:/5gT1S*@w:/" > /tmp/passwd
                 echo "codeninja:x:$(id -u):$(id -g):,,,:/home/codeninja:/bin/bash" >> /tmp/passwd
                 cat /tmp/passwd > /etc/passwd
                 rm /tmp/passwd

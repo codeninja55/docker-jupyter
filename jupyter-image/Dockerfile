@@ -14,7 +14,8 @@
 
 # Ubuntu 18.04 (bionic) from 2018-05-26
 # https://github.com/docker-library/official-images/commit/aac6a45b9eb2bffb8102353c350d341a410fb169
-FROM ubuntu:bionic-20180526@sha256:c8c275751219dadad8fa56b3ac41ca6cb22219ff117ca98fe82b42f24e1ba64e
+# FROM ubuntu:bionic-20180526@sha256:c8c275751219dadad8fa56b3ac41ca6cb22219ff117ca98fe82b42f24e1ba64e
+FROM ubuntu:latest@sha256:c8c275751219dadad8fa56b3ac41ca6cb22219ff117ca98fe82b42f24e1ba64e
 
 RUN echo # ------------------------------| DOCKER BUILD - START |------------------------------ #
 
@@ -86,12 +87,12 @@ RUN groupadd wheel -g 11 && \
 # Change back to $NB_USER from ROOT
 USER $NB_UID
 
-# Setup jupyter_notebooks directory for backward-compatibility
-RUN mkdir /home/$NB_USER/jupyter_notebooks && \
+# Setup work directory for backward-compatibility
+RUN mkdir /home/$NB_USER/work && \
     fix-permissions /home/$NB_USER
 
-COPY jupyter-notebook.key /home/$NB_USER/jupyter-notebook.key
-COPY jupyter-notebook.crt /home/$NB_USER/jupyter-notebook.crt
+RUN mkdir /home/$NB_USER/Dropbox && \
+    fix-permissions /home/$NB_USER
 
 # Install conda as codeninja and check the md5 sum provided on the download site
 ENV MINICONDA_VERSION 4.5.4
@@ -111,7 +112,7 @@ RUN cd /tmp && \
     fix-permissions /home/$NB_USER
 
 # Install Tini
-RUN conda install --quiet --yes 'tini=0.18.0' && \
+RUN conda install --yes 'tini=0.18.0' && \
     conda list tini | grep tini | tr -s ' ' | cut -d ' ' -f 1,2 >> $CONDA_DIR/conda-meta/pinned && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR && \
@@ -123,10 +124,10 @@ RUN conda install --quiet --yes 'tini=0.18.0' && \
 # Correct permissions
 # Do all this in a single RUN command to avoid duplicating all of the
 # files across image layers when the permissions change
-RUN conda install --quiet --yes \
-    'notebook=5.6.*' \
-    'jupyterhub=0.9.*' \
-    'jupyterlab=0.33.*' && \
+RUN conda install --yes \
+    'notebook' \
+    'jupyterhub' \
+    'jupyterlab' && \
     conda clean -tipsy && \
     jupyter labextension install @jupyterlab/hub-extension@^0.10.0 && \
     npm cache clean --force && \
@@ -140,6 +141,9 @@ USER root
 
 EXPOSE 8888
 WORKDIR $HOME
+
+COPY jupyter-notebook.key /home/$NB_USER/.local/share/jupyter/jupyter-notebook.key
+COPY jupyter-notebook.crt /home/$NB_USER/.local/share/jupyter/jupyter-notebook.crt
 
 # Configure container startup
 ENTRYPOINT ["tini", "-g", "--"]
@@ -194,7 +198,7 @@ RUN echo # ==============================| SCIPY NOTEBOOK - START |=============
 # Install Python 3 packages
 # Remove pyqt and qt pulled in for matplotlib since we're only ever going to
 # use notebook-friendly backends in these images
-RUN conda install --quiet --yes \
+RUN conda install --yes \
     'conda-forge::blas=*=openblas' \
     'ipywidgets=7.2*' \
     'pandas=0.23*' \
@@ -255,7 +259,7 @@ RUN echo # ==============================| SCIPY NOTEBOOK - END |===============
 RUN echo # ==============================| TENSORFLOW NOTEBOOK - START |============================== #
 
 # Install Tensorflow
-RUN conda install --quiet --yes \
+RUN conda install --yes \
     'tensorflow' \
     'keras' && \
     conda clean -tipsy && \
@@ -269,7 +273,7 @@ RUN echo # ==============================| DATASCIENCE NOTEBOOK - START |=======
 USER $NB_UID
 
 # R packages including IRKernel which gets installed globally.
-RUN conda install --quiet --yes \
+RUN conda install --yes \
     'rpy2=2.8*' \
     'r-base=3.4.1' \
     'r-irkernel=0.8*' \
@@ -300,10 +304,12 @@ RUN echo # ==============================| XEUS-CLING - START |=================
 
 # Install xeus-cling C++ kernel
 # https://github.com/QuantStack/xeus-cling
-RUN conda install --quiet --yes \
+RUN conda install --yes \
     xeus-cling \
     -c QuantStack \
-    -c conda-forge
+    -c conda-forge && \
+    fix-permissions $CONDA_DIR && \
+    fix-permissions /home/$NB_USER
 
 RUN echo # ==============================| XEUS-CLING - END |============================== #
 # ---------------------------------------------------------------------------------------------------
@@ -317,11 +323,12 @@ USER root
 WORKDIR /tmp
 
 COPY ./jupyter_c_kernel/ jupyter_c_kernel/
+RUN fix-permissions /tmp/jupyter_c_kernel
 
 RUN pip install --no-cache-dir jupyter_c_kernel/
 RUN cd jupyter_c_kernel && install_c_kernel --user
-
-WORKDIR $HOME
+RUN fix-permissions $CONDA_DIR && \
+    fix-permissions /home/$NB_USER
 
 USER $NB_UID
 
@@ -329,15 +336,21 @@ RUN echo # ==============================| JUPYTER-C-KERNEL - END |=============
 # --------------------------------------------------------------------------------------------------
 RUN echo # ==============================| JUPYTER THEMES - START |============================== #
 
+WORKDIR $HOME
+
 # Install jupyterthemes
-RUN pip install jupyterthemes
-RUN conda install --quiet --yes \
+RUN pip install jupyterthemes && \
+    fix-permissions $CONDA_DIR && \
+    fix-permissions /home/$NB_USER
+RUN conda install --yes \
     'jupyterthemes' && \
     conda clean -tipsy && \
     jt -t onedork -kl -T -N \
     -lineh 200 -cellw 80% \
     -nfs 11 -fs 11 \
-    -ofs 10 -cursc r -dfonts
+    -ofs 10 -cursc r && \
+    fix-permissions $CONDA_DIR && \
+    fix-permissions /home/$NB_USER
 
 # Switch back to codeninja to avoid accidental container runs as root
 USER $NB_UID

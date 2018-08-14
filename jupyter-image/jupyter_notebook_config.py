@@ -28,7 +28,7 @@ if 'GEN_CERT' in os.environ:
             raise
     # Generate a certificate if one doesn't exist on disk
     subprocess.check_call(['openssl', 'req', '-new',
-                           '-newkey', 'rsa:2048',
+                           '-newkey', 'rsa:4096',
                            '-days', '365',
                            '-nodes', '-x509',
                            '-subj', '/C=XX/ST=XX/L=XX/O=generated/CN=generated',
