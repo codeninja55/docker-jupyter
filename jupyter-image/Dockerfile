@@ -345,10 +345,10 @@ RUN pip install jupyterthemes && \
 RUN conda install --yes \
     'jupyterthemes' && \
     conda clean -tipsy && \
-    jt -t onedork -kl -T -N \
-    -lineh 200 -cellw 80% \
-    -nfs 11 -fs 11 \
-    -ofs 10 -cursc r && \
+    #jt -t onedork -kl -T -N \
+    #-lineh 200 -cellw 80% \
+    #-nfs 11 -fs 11 \
+    #-ofs 10 -cursc r && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
