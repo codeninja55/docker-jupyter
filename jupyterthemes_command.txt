@@ -1,0 +1,5 @@
+jt -t onedork -kl -T -N -altp -lineh 220 -cellw 88% -nf ptsans -nfs 12 -tf ptserif -fs 11 -ofs 11 -cursc r
+jt -t onedork -kl -T -N -altp -lineh 100 -cellw 88% -nf ptsans -nfs 11 -tf ptserif -fs 11 -ofs 11 -cursc r
+
+# Latest 2018.09.23
+jt -t onedork -kl -T -N -altp -lineh 150 -cellw 86% -nfs 10 -dfs 10 -fs 10 -ofs 10 -tfs 10 -cursc r -nf roboto -tf roboto -f firacode
